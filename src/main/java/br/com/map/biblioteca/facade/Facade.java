@@ -5,10 +5,13 @@
  */
 package br.com.map.biblioteca.facade;
 
+import br.com.map.biblioteca.dao.GrupoDao;
 import br.com.map.biblioteca.dao.PermissaoDao;
+import br.com.map.biblioteca.dao.UsuarioDao;
 import br.com.map.biblioteca.exception.DaoException;
 import br.com.map.biblioteca.model.Grupo;
 import br.com.map.biblioteca.model.Permissao;
+import br.com.map.biblioteca.model.Usuario;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -19,6 +22,8 @@ import java.util.List;
 public class Facade {
 
     PermissaoDao permissaoDao = new PermissaoDao();
+    GrupoDao grupoDao = new GrupoDao();
+    UsuarioDao usuarioDao = new UsuarioDao();
 
     public void salvarPermissao(Permissao p) throws SQLException, DaoException {
         permissaoDao.save(p);
@@ -82,5 +87,6 @@ public class Facade {
         usuarioDao.remove(u, id);
 
     }
+
 
 }
