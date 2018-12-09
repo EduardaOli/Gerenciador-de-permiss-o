@@ -28,6 +28,11 @@
                <scope>provided</scope>
           </dependency>
      </dependencies>
+     <dependency>
+    <groupId>net.sf.jasperreports</groupId>
+    <artifactId>jasperreports</artifactId>
+    <version>6.1.0</version>
+</dependency>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>

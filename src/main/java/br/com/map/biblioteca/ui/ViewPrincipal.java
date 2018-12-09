@@ -5,9 +5,30 @@
  */
 package br.com.map.biblioteca.ui;
 
+import br.com.map.biblioteca.dao.GrupoDao;
+import br.com.map.biblioteca.dao.PermissaoDao;
+import br.com.map.biblioteca.exception.DaoException;
+import br.com.map.biblioteca.util.JpaUtil;
 import java.awt.Dimension;
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.persistence.EntityManager;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.view.JRViewer;
+import net.sf.jasperreports.view.JasperViewer;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
 
 /**
  *
@@ -33,11 +54,12 @@ public class ViewPrincipal extends javax.swing.JFrame {
 
         Desktop = new javax.swing.JDesktopPane();
         jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
-        jMenuItem4 = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
+        menuCadastro = new javax.swing.JMenu();
+        menuCadastroPermissao = new javax.swing.JMenuItem();
+        menuCadastroUsuario = new javax.swing.JMenuItem();
+        menuCadastroGrupo = new javax.swing.JMenuItem();
+        menuRelatorio = new javax.swing.JMenu();
+        menRelGrupos = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
@@ -57,32 +79,52 @@ public class ViewPrincipal extends javax.swing.JFrame {
             .addGap(0, 512, Short.MAX_VALUE)
         );
 
-        jMenu1.setText("Cadastro");
-        jMenu1.addActionListener(new java.awt.event.ActionListener() {
+        menuCadastro.setText("Cadastro");
+        menuCadastro.setEnabled(false);
+        menuCadastro.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenu1ActionPerformed(evt);
+                menuCadastroActionPerformed(evt);
             }
         });
 
-        jMenuItem1.setText("Permissão");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        menuCadastroPermissao.setText("Permissão");
+        menuCadastroPermissao.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                menuCadastroPermissaoActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem1);
+        menuCadastro.add(menuCadastroPermissao);
 
-        jMenuItem2.setText("Usuario");
-        jMenu1.add(jMenuItem2);
+        menuCadastroUsuario.setText("Usuario");
+        menuCadastroUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuCadastroUsuarioActionPerformed(evt);
+            }
+        });
+        menuCadastro.add(menuCadastroUsuario);
 
-        jMenuItem4.setText("Grupo");
-        jMenu1.add(jMenuItem4);
+        menuCadastroGrupo.setText("Grupo");
+        menuCadastroGrupo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuCadastroGrupoActionPerformed(evt);
+            }
+        });
+        menuCadastro.add(menuCadastroGrupo);
 
-        jMenuBar1.add(jMenu1);
+        jMenuBar1.add(menuCadastro);
 
-        jMenu2.setText("Relatório");
-        jMenu2.setEnabled(false);
-        jMenuBar1.add(jMenu2);
+        menuRelatorio.setText("Relatório");
+        menuRelatorio.setEnabled(false);
+
+        menRelGrupos.setText("Permissões");
+        menRelGrupos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menRelGruposActionPerformed(evt);
+            }
+        });
+        menuRelatorio.add(menRelGrupos);
+
+        jMenuBar1.add(menuRelatorio);
 
         jMenu3.setText("Opções");
 
@@ -121,13 +163,13 @@ public class ViewPrincipal extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    private void menuCadastroPermissaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCadastroPermissaoActionPerformed
         ViewPermissao telaPermissao = new ViewPermissao();
         centralizaForm(telaPermissao);
         telaPermissao.setVisible(true);
         Desktop.add(telaPermissao);
 
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    }//GEN-LAST:event_menuCadastroPermissaoActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         int sair = JOptionPane.showConfirmDialog(null, "Tem certeza que sair?", "Atenção", JOptionPane.YES_NO_OPTION);//cria uma caixa de diálogo, aponta pra NULL, Faz a pergunta, nome do titulo, e a opção padronizada sim ou não
@@ -136,10 +178,10 @@ public class ViewPrincipal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
-    private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
+    private void menuCadastroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCadastroActionPerformed
 
 
-    }//GEN-LAST:event_jMenu1ActionPerformed
+    }//GEN-LAST:event_menuCadastroActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
         ViewSobre telaSobre = new ViewSobre();
@@ -147,6 +189,42 @@ public class ViewPrincipal extends javax.swing.JFrame {
         telaSobre.setVisible(true);
         Desktop.add(telaSobre);  // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    private void menuCadastroUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCadastroUsuarioActionPerformed
+       
+        ViewUsuario telaUsuario = new ViewUsuario();
+        centralizaForm(telaUsuario);
+        telaUsuario.setVisible(true);
+        Desktop.add(telaUsuario);
+    }//GEN-LAST:event_menuCadastroUsuarioActionPerformed
+
+    private void menuCadastroGrupoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCadastroGrupoActionPerformed
+         
+        ViewGrupo telaGrupo = new ViewGrupo();
+        centralizaForm(telaGrupo);
+        telaGrupo.setVisible(true);
+        Desktop.add(telaGrupo);
+    }//GEN-LAST:event_menuCadastroGrupoActionPerformed
+
+    private void menRelGruposActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menRelGruposActionPerformed
+       PermissaoDao pd = new PermissaoDao();
+        int confirma = JOptionPane.showConfirmDialog(null,"Confirma a impressão deste relatório?","Atenção",JOptionPane.YES_NO_OPTION);
+        if (confirma == JOptionPane.YES_OPTION){
+           try {
+               //imprimindo relatório com o framework JasperReports
+             JRDataSource jrDataSource = new JRBeanCollectionDataSource(pd.all());
+             String sourceName = "/home/lucas/NetBeansProjects/oi/Gerenciador-de-permiss-o/src/main/java/br/com/map/biblioteca/report/permissao.jrxml";
+             JasperReport report = JasperCompileManager.compileReport(sourceName);
+             JasperPrint filledReport = JasperFillManager.fillReport(report,null, jrDataSource);
+             JasperViewer.viewReport(filledReport,false);    
+                               
+           } catch (Exception ex) {
+               Logger.getLogger(ViewPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+           }
+           
+           
+        }
+    }//GEN-LAST:event_menRelGruposActionPerformed
 
     private void centralizaForm(JInternalFrame frame) {
         Dimension desktopSize = Desktop.getSize();
@@ -184,6 +262,10 @@ public class ViewPrincipal extends javax.swing.JFrame {
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -195,14 +277,15 @@ public class ViewPrincipal extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JDesktopPane Desktop;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
-    private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
+    public static javax.swing.JMenuItem menRelGrupos;
+    public static javax.swing.JMenu menuCadastro;
+    public static javax.swing.JMenuItem menuCadastroGrupo;
+    public static javax.swing.JMenuItem menuCadastroPermissao;
+    public static javax.swing.JMenuItem menuCadastroUsuario;
+    public static javax.swing.JMenu menuRelatorio;
     // End of variables declaration//GEN-END:variables
 }
